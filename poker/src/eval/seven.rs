@@ -1,19 +1,22 @@
 use std::iter::zip;
+use std::sync::Arc;
 use std::time::Instant;
 
+#[cfg(feature = "serde")]
+use serde::Serialize;
+
 use crate::eval::five;
-use crate::keys;
 
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct TableSeven {
-    pk: keys::Keys,
     pub face_rank: Vec<u32>,
     pub flush_rank: Vec<u32>,
     pub flush_suit: Vec<i32>,
-    // pub nb_hand_seven_rank: u32,
+    pub t5: five::TableFive,
 }
 
-pub fn build_tables(verbose: bool) -> TableSeven {
+pub fn build_tables(verbose: bool) -> Arc<TableSeven> {
     let start = Instant::now();
 
     let t5 = five::build_tables(false);
@@ -24,10 +27,10 @@ pub fn build_tables(verbose: bool) -> TableSeven {
     let nb_suit = t5.pk.nb_suit;
 
     let mut t7 = TableSeven {
-        pk: t5.pk.clone(),
         face_rank: vec![0; t5.pk.max_face_seven_key as usize + 1],
         flush_rank: vec![0; t5.pk.max_flush_seven_key as usize + 1],
         flush_suit: vec![0; t5.pk.max_suit_key as usize + 1],
+        t5,
     };
 
     // face rank
@@ -51,7 +54,7 @@ pub fn build_tables(verbose: bool) -> TableSeven {
                                     let (c1, c2, c3, c4, c5, c6, c7) =
                                         (4 * f1, 4 * f2, 4 * f3, 4 * f4, 4 * f5 + 1, 4 * f6 + 1, 4 * f7 + 1);
                                     t7.face_rank[hand_face_key as usize] =
-                                        get_rank_seven(&t5, [c1, c2, c3, c4, c5, c6, c7]);
+                                        get_rank_seven(&t7.t5, [c1, c2, c3, c4, c5, c6, c7]);
                                 }
                             }
                         }
@@ -79,7 +82,7 @@ pub fn build_tables(verbose: bool) -> TableSeven {
                                 let c6 = 4 * f6;
                                 let c7 = 4 * f7;
                                 t7.flush_rank[hand_flush_key as usize] =
-                                    get_rank_seven(&t5, [c1, c2, c3, c4, c5, c6, c7]);
+                                    get_rank_seven(&t7.t5, [c1, c2, c3, c4, c5, c6, c7]);
                             }
                         }
                     }
@@ -104,7 +107,8 @@ pub fn build_tables(verbose: bool) -> TableSeven {
                             let c5 = 4 * f5;
                             let c6 = 4 * f6;
                             let c7 = 4 * f6 + 1;
-                            t7.flush_rank[hand_flush_key as usize] = get_rank_seven(&t5, [c1, c2, c3, c4, c5, c6, c7]);
+                            t7.flush_rank[hand_flush_key as usize] =
+                                get_rank_seven(&t7.t5, [c1, c2, c3, c4, c5, c6, c7]);
                         }
                     }
                 }
@@ -127,7 +131,7 @@ pub fn build_tables(verbose: bool) -> TableSeven {
                         let c5 = 4 * f5;
                         let c6 = 4 * f5 + 1;
                         let c7 = 4 * f5 + 1;
-                        t7.flush_rank[hand_flush_key as usize] = get_rank_seven(&t5, [c1, c2, c3, c4, c5, c6, c7]);
+                        t7.flush_rank[hand_flush_key as usize] = get_rank_seven(&t7.t5, [c1, c2, c3, c4, c5, c6, c7]);
                     }
                 }
             }
@@ -142,13 +146,13 @@ pub fn build_tables(verbose: bool) -> TableSeven {
                     for s5 in 0..(s4 + 1) {
                         for s6 in 0..(s5 + 1) {
                             for s7 in 0..(s6 + 1) {
-                                let hand_suit_key = t5.pk.suit_key[s1]
-                                    + t5.pk.suit_key[s2]
-                                    + t5.pk.suit_key[s3]
-                                    + t5.pk.suit_key[s4]
-                                    + t5.pk.suit_key[s5]
-                                    + t5.pk.suit_key[s6]
-                                    + t5.pk.suit_key[s7];
+                                let hand_suit_key = t7.t5.pk.suit_key[s1]
+                                    + t7.t5.pk.suit_key[s2]
+                                    + t7.t5.pk.suit_key[s3]
+                                    + t7.t5.pk.suit_key[s4]
+                                    + t7.t5.pk.suit_key[s5]
+                                    + t7.t5.pk.suit_key[s6]
+                                    + t7.t5.pk.suit_key[s7];
                                 t7.flush_suit[hand_suit_key as usize] = -1;
 
                                 for suit in 0..nb_suit {
@@ -192,18 +196,12 @@ pub fn build_tables(verbose: bool) -> TableSeven {
         println!("seven::build_tables runtime = {:?}", (end - start));
     }
 
-    t7
+    Arc::new(t7)
 }
 
 pub fn get_rank_seven(t5: &five::TableFive, c: [usize; 7]) -> u32 {
     // input = array of 5 cards all distinct integers from 0 to nb_face*nb_suit
     // in order defined by card_no
-
-    // let mut show = false;
-    // if (c[0], c[1], c[2], c[3], c[4], c[5], c[6]) == (50, 6, 0, 5, 38, 7, 17) {
-    //     show = true;
-    //     println!("c: {:?}", c);
-    // }
 
     let mut best_hand_rank = 0;
     let mut arr = [0; 5];
@@ -218,11 +216,7 @@ pub fn get_rank_seven(t5: &five::TableFive, c: [usize; 7]) -> u32 {
                     k += 1;
                 }
             }
-            let hand_rank = five::get_rank_five(&t5, arr[0], arr[1], arr[2], arr[3], arr[4]);
-
-            // if show {
-            //     println!("arr: {:?}, hand_rank: {}", arr, hand_rank);
-            // }
+            let hand_rank = five::get_rank_five(&t5, [arr[0], arr[1], arr[2], arr[3], arr[4]]);
 
             if hand_rank > best_hand_rank {
                 best_hand_rank = hand_rank;
@@ -236,12 +230,12 @@ pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
     // input = array of 7 cards all distinct integers from 0 to nb_face*nb_suit
     // in order defined by card_no
 
-    let card_face_key = &t7.pk.card_face_key;
-    let card_flush_key = &t7.pk.card_flush_key;
+    let card_face_key = &t7.t5.pk.card_face_key;
+    let card_flush_key = &t7.t5.pk.card_flush_key;
 
-    let suit_mask = t7.pk.suit_mask;
-    let suit_bit_shift = t7.pk.suit_bit_shift;
-    let card_suit = &t7.pk.card_suit;
+    let suit_mask = t7.t5.pk.suit_mask;
+    let suit_bit_shift = t7.t5.pk.suit_bit_shift;
+    let card_suit = &t7.t5.pk.card_suit;
 
     let face_rank = &t7.face_rank;
     let flush_rank = &t7.flush_rank;
@@ -259,11 +253,6 @@ pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
     let hand_suit_key = (hand_key & suit_mask) as usize;
     let hand_suit = flush_suit[hand_suit_key];
 
-    // println!("----------");
-    // println!("hand_key: {}", hand_key);
-    // println!("hand_suit_key: {}", hand_suit_key);
-    // println!("hand_suit: {}", hand_suit);
-
     if hand_suit == -1 {
         let hand_face_key = hand_key >> suit_bit_shift;
         hand_rank = face_rank[hand_face_key as usize];
@@ -275,8 +264,6 @@ pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
             }
         }
         hand_rank = flush_rank[hand_flush_key as usize];
-        // println!("hand_flush_key: {}", hand_flush_key);
-        // println!("hand_rank: {}", hand_rank);
     }
 
     hand_rank
@@ -285,7 +272,14 @@ pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
 #[cfg(test)]
 mod tests {
 
-    use crate::eval::seven::{build_tables, get_rank};
+    use super::{build_tables, get_rank, TableSeven};
+
+    use crate::util::is_normal;
+
+    #[test]
+    fn check_t7_normal() {
+        is_normal::<TableSeven>();
+    }
 
     #[test]
     fn eval_seven() {

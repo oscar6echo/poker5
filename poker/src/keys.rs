@@ -1,6 +1,11 @@
 use std::collections::HashMap;
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{self, Serialize};
+#[cfg(feature = "serde")]
+use serde_big_array::BigArray;
+
 use crate::util::*;
 
 pub const NB_FACE: usize = 13;
@@ -28,7 +33,10 @@ pub const MAX_FLUSH_SEVEN_KEY: u32 = sum_last(FLUSH_SEVEN_KEY, 7);
 pub const MAX_FACE_FIVE_KEY: u32 = FACE_FIVE_KEY[NB_FACE - 1] * 4 + FACE_FIVE_KEY[NB_FACE - 2] * 1;
 pub const MAX_FACE_SEVEN_KEY: u32 = FACE_SEVEN_KEY[NB_FACE - 1] * 4 + FACE_SEVEN_KEY[NB_FACE - 2] * 3;
 
+pub const NO_VALUE: u32 = 999_999_999;
+
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct Keys {
     pub nb_face: usize,
     pub nb_suit: usize,
@@ -38,20 +46,27 @@ pub struct Keys {
     pub suit: [char; 4],
     pub suit_key: [u32; 4],
     pub face: [char; 13],
+
     pub flush_five_key: [u32; NB_FACE],
     pub flush_seven_key: [u32; NB_FACE],
     pub face_five_key: [u32; NB_FACE],
     pub face_seven_key: [u32; NB_FACE],
+
     pub max_suit_key: u32,
     pub max_flush_five_key: u32,
     pub max_flush_seven_key: u32,
     pub max_face_five_key: u32,
     pub max_face_seven_key: u32,
 
+    #[cfg_attr(feature = "serde", serde(with = "BigArray"))]
     pub card_face: [usize; DECK_SIZE],
+    #[cfg_attr(feature = "serde", serde(with = "BigArray"))]
     pub card_suit: [usize; DECK_SIZE],
+    #[cfg_attr(feature = "serde", serde(with = "BigArray"))]
     pub card_flush_key: [u32; DECK_SIZE],
+    #[cfg_attr(feature = "serde", serde(with = "BigArray"))]
     pub card_face_key: [u32; DECK_SIZE],
+
     pub card_sy: HashMap<usize, String>,
     pub card_no: HashMap<String, usize>,
 }
@@ -111,10 +126,10 @@ pub fn build() -> Keys {
         max_face_seven_key: MAX_FACE_SEVEN_KEY,
 
         // constructed
-        card_face,
-        card_suit,
-        card_flush_key,
-        card_face_key,
+        card_face: card_face,
+        card_suit: card_suit,
+        card_flush_key: card_flush_key,
+        card_face_key: card_face_key,
         card_sy,
         card_no,
     }
@@ -140,35 +155,35 @@ impl fmt::Display for Keys {
             self.max_face_seven_key < (1 << (32 - self.suit_bit_shift))
         )?;
         writeln!(f, "\n--- cards")?;
-        writeln!(f, "face={:?}", self.face)?;
-        writeln!(f, "suit={:?}", self.suit)?;
-        writeln!(f, "card_no={:?}", self.card_no)?;
-        writeln!(f, "card_sy={:?}", self.card_sy)?;
+        writeln!(f, "face = {:?}", self.face)?;
+        writeln!(f, "suit = {:?}", self.suit)?;
+        writeln!(f, "card_no = {:?}", self.card_no)?;
+        writeln!(f, "card_sy = {:?}", self.card_sy)?;
 
         writeln!(f, "\n--- eval keys")?;
-        writeln!(f, "nb_face={:?}", self.nb_face)?;
-        writeln!(f, "nb_suit={:?}", self.nb_suit)?;
-        writeln!(f, "deck_size={:?}", self.deck_size)?;
-        writeln!(f, "suit_mask={:?}", self.suit_mask)?;
-        writeln!(f, "suit_bit_shift={:?}", self.suit_bit_shift)?;
+        writeln!(f, "nb_face = {:?}", self.nb_face)?;
+        writeln!(f, "nb_suit = {:?}", self.nb_suit)?;
+        writeln!(f, "deck_size = {:?}", self.deck_size)?;
+        writeln!(f, "suit_mask = {:?}", self.suit_mask)?;
+        writeln!(f, "suit_bit_shift = {:?}", self.suit_bit_shift)?;
 
-        writeln!(f, "suit_key={:?}", self.suit_key)?;
-        writeln!(f, "flush_five_key={:?}", self.flush_five_key)?;
-        writeln!(f, "flush_seven_key={:?}", self.flush_seven_key)?;
-        writeln!(f, "face_five_key={:?}", self.face_five_key)?;
-        writeln!(f, "face_seven_key={:?}", self.face_seven_key)?;
+        writeln!(f, "suit_key = {:?}", self.suit_key)?;
+        writeln!(f, "flush_five_key = {:?}", self.flush_five_key)?;
+        writeln!(f, "flush_seven_key = {:?}", self.flush_seven_key)?;
+        writeln!(f, "face_five_key = {:?}", self.face_five_key)?;
+        writeln!(f, "face_seven_key = {:?}", self.face_seven_key)?;
 
-        writeln!(f, "max_suit_key={:?}", self.max_suit_key)?;
-        writeln!(f, "max_flush_five_key={:?}", self.max_flush_five_key)?;
-        writeln!(f, "max_flush_seven_key={:?}", self.max_flush_seven_key)?;
-        writeln!(f, "max_face_five_key={:?}", self.max_face_five_key)?;
-        writeln!(f, "max_face_seven_key={:?}", self.max_face_seven_key)?;
+        writeln!(f, "max_suit_key = {:?}", self.max_suit_key)?;
+        writeln!(f, "max_flush_five_key = {:?}", self.max_flush_five_key)?;
+        writeln!(f, "max_flush_seven_key = {:?}", self.max_flush_seven_key)?;
+        writeln!(f, "max_face_five_key = {:?}", self.max_face_five_key)?;
+        writeln!(f, "max_face_seven_key = {:?}", self.max_face_seven_key)?;
 
-        writeln!(f, "card_face={:?}", self.card_face)?;
-        writeln!(f, "card_suit={:?}", self.card_suit)?;
+        writeln!(f, "card_face = {:?}", self.card_face)?;
+        writeln!(f, "card_suit = {:?}", self.card_suit)?;
 
-        writeln!(f, "card_flush_key={:?}", self.card_flush_key)?;
-        writeln!(f, "card_face_key={:?}", self.card_face_key)?;
+        writeln!(f, "card_flush_key = {:?}", self.card_flush_key)?;
+        writeln!(f, "card_face_key = {:?}", self.card_face_key)?;
 
         writeln!(f, "\n------")
     }
@@ -176,10 +191,22 @@ impl fmt::Display for Keys {
 
 const fn sum_last(arr: [u32; NB_FACE], n: usize) -> u32 {
     let mut sum = 0;
-    let mut i = arr.len() - n - 1;
+    let mut i = arr.len() - n;
     while i < arr.len() {
         sum += arr[i];
         i += 1;
     }
     return sum;
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::Keys;
+    use crate::util::is_normal;
+
+    #[test]
+    fn check_keys_normal() {
+        is_normal::<Keys>();
+    }
 }
