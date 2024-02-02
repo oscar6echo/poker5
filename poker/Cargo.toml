@@ -20,3 +20,5 @@ serde = ["dep:serde", "dep:serde_big_array"]
 
 [profile.release]
 strip = true
+lto = true
+codegen-units = 1
