@@ -1,9 +1,9 @@
 use std::{iter::zip, sync::Mutex, thread, time::Instant};
 
+/// Generate integer keys for faces 1, 2, 3,.., 9, T, J, Q, K, A.  
+/// These keys are such that the sums of any 2 combinations of 7 faces (with max same 4) are different.  
 pub fn build() {
-    // generate keys for faces 1, 2, 3,.., 9, T, J, Q, K, A
-    // keys are such that the sums of any 2 combinations of 7 faces (with max same 4) are distinct
-    // (discarding all other card info)
+    //! Does not take any argument.
 
     println!("start key-gen-face-seven");
 

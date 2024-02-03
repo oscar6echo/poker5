@@ -1,9 +1,9 @@
 use std::time::Instant;
 
+/// Generate integer keys for suits Spades, Hearts, Diamonds, Clubs.  
+/// These keys are such that the sums of any 2 combinations of 7 suit keys are different.  
 pub fn build() {
-    // generate keys for suits Spades, Hearts, Diamonds, Clubs
-    // keys are such that the sums of any 2 combinations of 7 suits are distinct
-    // (discarding all other card info)
+    //! Does not take any argument.
 
     println!("start key_suit");
 

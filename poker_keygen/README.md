@@ -3,46 +3,46 @@
 ## Overview
 
 The purpose of this repo is to brute force search for keys which enable to uniquely identify a poker hand with a few sums, bitshift and bitmask.  
-AFAIK this algo was introduced by [SpecialK](https://github.com/kennethshackleton/SKPokerEval).
+AFAIK this algo was introduced by [SpecialK](https://github.com/kennethshackleton/SKPokerEval).  
 
 The sets of keys are:
 
-+ **suit** keys:
-    4 keys mapped to suits Spades, Hearts, Diamonds, Clubs.
-    They are such that the sums of any 2 combinations of 7 suits are distinct.
-    They enable to determine whether a 7-card hand is a flush.
++ **suit** keys:  
+    4 keys mapped to suits Spades, Hearts, Diamonds, Clubs.  
+    They are such that the sums of any 2 combinations of 7 suits are distinct.  
+    They enable to determine whether a 7-card hand is a flush.  
 
-+ **flush five** keys:
-    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A
-    They are such that the sums of any 2 combinations of 5 distinct faces are distinct
-    They allow to uuid a 5-card flush hand.
++ **flush five** keys:  
+    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A.  
+    They are such that the sums of any 2 combinations of 5 distinct faces are distinct.  
+    They allow to uuid a 5-card flush hand.  
 
-+ **face five** keys:
-    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A
-    They are such that the sums of any 2 combinations of 5 faces (with max same 4) are distinct
-    They allow to uuid a 5-card non-flush hand.
++ **face five** keys:  
+    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A.  
+    They are such that the sums of any 2 combinations of 5 faces (with max same 4) are distinct.  
+    They allow to uuid a 5-card non-flush hand.  
 
-+ **flush seven** keys:
-    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A
-    They are such that the sums of any 2 combinations of 5 or 6 or 7 distinct faces are distinct
-    They allow to uuid a 7-card flush hand.
++ **flush seven** keys:  
+    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A.  
+    They are such that the sums of any 2 combinations of 5 or 6 or 7 distinct faces are distinct.  
+    They allow to uuid a 7-card flush hand.  
 
-+ **face seven** keys:
-    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A
-    They are such that the sums of any 2 combinations of 7 faces (with max same 4) are distinct
-    They allow to uuid a 7-card non-flush hand.
++ **face seven** keys:  
+    13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A.  
+    They are such that the sums of any 2 combinations of 7 faces (with max same 4) are distinct.  
+    They allow to uuid a 7-card non-flush hand.  
 
 It turns out that:
 
 + max(suit keys) < 2^9
 + max(face keys) < 2^23
 
-So a card (among 52) can be encoded in 32 bits - this plays well with computers !  
-From there if all possible cases are pre calculated, a hand rank can be looked up as follows:
+So a card (among #suit x #face = 4 x 13 = 52) can be encoded in 32 bits - this plays well with computers !  
+From there if all possible cases are pre calculated, a hand rank can be looked up as follows:  
 
-+ sum each card `suit_key` (extracted by bit shift) and lookup of hand is flush
-+ if so: sum each card (with suit=flush suit) `flush_seven` and lookup hand rank
-+ if not: sum each card `face_seven` (extracted by bit shift) and lookup hand rank
++ Sum each card `suit_key` (extracted by bit shift) and lookup if hand is flush.  
++ If so: Sum each card (with suit="flush suit") `flush_seven` and lookup hand rank.  
++ If not: Sum each card `face_seven` (extracted by bit shift) and lookup hand rank.  
 
 This provides a very fast way to evaluate hand ranks.
 

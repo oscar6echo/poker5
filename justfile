@@ -56,3 +56,14 @@ request-calc-mc-sample-1:
 request-calc-mc-sample-2:
     curl -X POST -H "Content-Type: application/json" -d '{"players":[[8,9],[11],[]],"table":[15,47,23,33],"nb_game":100000000}' http://localhost:3000/calc-mc
 
+doc-live-poker_keygen $PKG="poker_keygen":
+    cargo watch --watch  $PKG -s 'cargo doc --no-deps -p $PKG'
+
+doc-live-poker $PKG="poker":
+    cargo watch --watch  $PKG -s 'cargo doc --no-deps -p $PKG'
+
+doc-live-poker_server $PKG="poker_server":
+    cargo watch --watch  $PKG -s 'cargo doc --no-deps -p $PKG'
+
+serve-doc:
+    browser-sync start --port 3009 --directory --server target/doc --ss target/doc --watch target/doc --no-open

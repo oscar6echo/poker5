@@ -1,10 +1,10 @@
 use std::iter::zip;
 use std::time::Instant;
 
+/// Generate integer keys for faces 1, 2, 3,.., 9, T, J, Q, K, A.  
+/// These keys are such that the sums of any 2 combinations of 5 or 6 or 7 distinct faces are different.  
 pub fn build() {
-    // generate keys for faces 1, 2, 3,.., 9, T, J, Q, K, A
-    // keys are such that the sums of any 2 combinations of 5 or 6 or 7 distinct faces are distinct
-    // (discarding all other card info)
+    //! Does not take any argument.
 
     println!("start key_gen_flush_five");
 
