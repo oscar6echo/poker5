@@ -56,6 +56,9 @@ request-calc-mc-sample-1:
 request-calc-mc-sample-2:
     curl -X POST -H "Content-Type: application/json" -d '{"players":[[8,9],[11],[]],"table":[15,47,23,33],"nb_game":100000000}' http://localhost:3000/calc-mc
 
+build-doc:
+    cargo doc --workspace --lib --bin poker_keygen --bin poker_server --no-deps --release 
+
 doc-live-poker_keygen $PKG="poker_keygen":
     cargo watch --watch  $PKG -s 'cargo doc --no-deps -p $PKG'
 

@@ -104,8 +104,10 @@ struct GameMc {
     nb_game: u32,
 }
 
-/// ## Main function
-/// Starts the poker server based on **poker_eval** crate.
+/// ## Start poker server
+/// Starts the poker server based on [poker_eval] crate.  
+/// First build app state with lookup tables and hand statistics.  
+/// Then start the server with the app state.  
 #[tokio::main]
 async fn main() {
     banner("poker server", 10);

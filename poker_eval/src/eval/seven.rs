@@ -272,13 +272,22 @@ pub fn get_rank_seven(t5: &five::TableFive, c: [usize; 7]) -> u32 {
 /// + a bit shift  
 /// + a lookup.  
 ///
-/// In the flush case, the evaluation substitutes the bit shift by a sum.
+/// In the flush case, the evaluation substitutes the bit shift with a sum.
 ///
 /// Consequently it is *very* fast.
-pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
-    // input = array of 7 cards all distinct integers from 0 to nb_face*nb_suit
-    // in order defined by card_no
+///
+/// ## Example
+/// ```no_run
+/// use poker_eval::eval::seven::{build_tables, get_rank};
+///
+/// // precalculate the lookup tables
+/// let t7 = build_tables(false);
+///
+/// // run the evaluation multiple times
+/// let rank = get_rank(&t7, [5, 4, 18, 31, 34, 48, 22]);
+/// // rank = 1689
 
+pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
     let card_face_key = &t7.t5.pk.card_face_key;
     let card_flush_key = &t7.t5.pk.card_flush_key;
 

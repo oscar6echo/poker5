@@ -2,6 +2,11 @@
 name = "poker_eval"
 version = "0.1.0"
 edition = "2021"
+authors = ["oscar6echo"]
+license = "MIT"
+description = "Texas Hold'em poker hand equity evaluator"
+homepage = "https//github/oscar6echo/poker5"
+repository = "https//github/oscar6echo/poker5"
 
 # See https://doc.rust-lang.org/cargo/reference/manifest.html
 

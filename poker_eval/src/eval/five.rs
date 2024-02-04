@@ -341,13 +341,10 @@ pub fn build_tables(verbose: bool) -> TableFive {
 /// let t5 = build_tables(true);
 ///
 /// // run the evaluation multiple times
-/// let rank = get_rank_five(&t5, [0, 1, 2, 44, 33]);
-/// // rank = TBD
+/// let rank = get_rank_five(&t5, [31, 26, 50, 16, 49]);
+/// // rank = 3971
 /// ```
 pub fn get_rank_five(t5: &TableFive, c: [usize; 5]) -> u32 {
-    // input = 5 cards all distinct integers from 0 to nb_face*nb_suit
-    // in order defined by card_no
-
     let card_suit = &t5.pk.card_suit;
     let card_face = &t5.pk.card_face;
     let flush_key = &t5.pk.flush_five_key;
