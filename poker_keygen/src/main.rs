@@ -16,7 +16,7 @@ fn banner(txt: &str, n: u8) {
     println!("\n{} {} {}", s, txt, s);
 }
 
-/// Launch serch for keys
+/// Launch search for keys
 fn main() {
     banner("key_gen_suit", 10);
     key_gen_suit::build();

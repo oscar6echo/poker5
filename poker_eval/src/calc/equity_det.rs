@@ -1,3 +1,28 @@
+//! # Deterministic equity calculation
+//! This module contains the function to calculate the equity of a hand deterministically, i.e. exhaustively, knowing all player cards.
+
+//!   # Example
+//!
+//! ```no_run
+//! // you need create Arc<TableSeven> arc_t7 beforehand once
+//! let t7 = poker_eval::eval::seven::build_tables(true);
+//! let arc_t7 = std::sync::Arc::new(t7);
+//!
+//! // then you can call calc_equity_det multiple times
+//! let equity = calc::equity_det::calc_equity_det(
+//!     // clone of Arc<TableSeven>
+//!     arc_t7.clone(),  
+//!     // players cards  
+//!     vec![[7, 8], [22, 27]],  
+//!     // table cards  
+//!     vec![51, 30, 41],  
+//!     // verbose  
+//!     true
+//! );
+//! println!("equity = {:?}", equity);
+//! //Ok([[0.23131312, 0.10707071], [0.55454546, 0.10707071]])
+//! ```
+
 use std::{collections::HashSet, sync::Arc, thread, time::Instant, vec};
 
 use thiserror::Error;
@@ -10,30 +35,45 @@ use crate::{
 #[cfg(feature = "serde")]
 use serde::Serialize;
 
+/// ## Hand equity container
+/// Wrapper to contain the equity of a hand, separating the win and tie probabilities.  
+/// Each is between 0 and 1.  
+/// The actual equity is the sum of the win and tie probabilities.  
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct HandEquity {
+    /// Probability of winning - between 0 and 1
     pub win: f64,
+    /// Probability of tie - between 0 and 1
     pub tie: f64,
 }
 
+/// ## Game description error
+/// This error type is used to describe the errors that can occur when describing a deterministic game.  
 #[derive(Error, Debug)]
 pub enum GameError {
     // player
+    /// Invalid number of players
     #[error("invalid nb players: {0} - must be between 2 and 10")]
     InvalidNbPlayer(u32),
+    /// Invalid player card
     #[error("invalid player card: {1} for player {0} - must be between 0 and 51")]
     InvalidPlayerCard(u32, u32),
     // table
+    /// Invalid number of table cards
     #[error("invalid nb table cards: {0} - must be among 0, 3, 4 or 5")]
     InvalidNbTableCard(u32),
+    /// Invalid table card
     #[error("invalid table card: {0} - must be between 0 and 51")]
     InvalidTableCard(u32),
     // both
+    /// Not distinct cards
     #[error("players: {0:?} table: {1:?} - all cards must be distinct")]
     NotDistinctCards(Vec<[u32; 2]>, Vec<u32>),
 }
 
+/// ## Calculate equity of hand deterministically ie. exhaustively
+/// This requires knowing all players cards - and table cards, which is always the case.
 pub fn calc_equity_det(
     t7: Arc<TableSeven>,
     player_cards: Vec<[u32; 2]>,

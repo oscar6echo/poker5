@@ -2,11 +2,11 @@
 run-keygen:
     cargo run -p poker_keygen --release
 
-test-poker:
-    cargo test -p poker --lib --release
+test-eval:
+    cargo test -p poker_eval --lib --release
 
-test-poker-vv:
-    cargo test -p poker --lib --release -- --nocapture
+test-eval-vv:
+    cargo test -p poker_eval --lib --release -- --nocapture
 
 test-server:
     cargo test -p poker_server --release
@@ -15,10 +15,10 @@ build:
     cargo build --release
 
 show-keys:
-    cargo run -p poker --bin show-keys --release
+    cargo run -p poker_eval --bin show-keys --release
 
 tactical:
-    cargo run -p poker --bin tactical --release
+    cargo run -p poker_eval --bin tactical --release
 
 server $RUST_LOG="info":
     cargo run -p poker_server --release
@@ -59,7 +59,7 @@ request-calc-mc-sample-2:
 doc-live-poker_keygen $PKG="poker_keygen":
     cargo watch --watch  $PKG -s 'cargo doc --no-deps -p $PKG'
 
-doc-live-poker $PKG="poker":
+doc-live-poker_eval $PKG="poker_eval":
     cargo watch --watch  $PKG -s 'cargo doc --no-deps -p $PKG'
 
 doc-live-poker_server $PKG="poker_server":

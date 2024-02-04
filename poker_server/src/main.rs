@@ -17,7 +17,7 @@ use std::{
 
 use tracing_subscriber;
 
-use poker::{
+use poker_eval::{
     calc::{
         self,
         equity_det::{GameError, HandEquity},
@@ -27,66 +27,94 @@ use poker::{
     stats,
 };
 
+/// ## Poker eval config
+/// Converts cards in human readable format to integer and vice versa.
 #[derive(Debug, Serialize)]
 struct Config {
+    /// faces as char: 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, K, A
     face: [char; 13],
+    /// suits as char: C, D, H, S
     suit: [char; 4],
+    /// dict of card 2-char string to card number, e.g. "2C" -> 0, "2D" -> 1, ..., "AS" -> 51
     card_no: HashMap<String, usize>,
+    /// dict of card number to 2-char string, e.g. 0 -> "2C", 1 -> "2D", ..., 51 -> "AS"
     card_sy: HashMap<usize, String>,
 }
 
+/// ## Poker eval app state
+/// Contains the tables and hand statistics for the poker server.
+/// Calculated at server start.
 #[derive(Clone, Debug, Serialize)]
 struct AppState {
+    /// 5-card and 7-card lookup tables used by poker_eval
     #[serde(skip)]
     t7: Arc<eval::seven::TableSeven>,
+    /// 5-card hand statistics
     stats_five: HashMap<String, HandStats>,
+    /// 7-card hand statistics
     stats_seven: HashMap<String, HandStats>,
 }
 
+/// ## Poker eval server config
+/// Contains the server address and port.
 #[derive(Parser, Debug)]
-#[clap(name = "server", about = "A server for our wasm project!")]
-struct Opt {
-    /// set listen addr
+#[clap(name = "server", about = "A server for poker_eval.")]
+struct ServerConfig {
+    /// IP address to listen on, default is 127.0.0.1
     #[clap(short = 'a', long = "addr", default_value = "127.0.0.1")]
     addr: String,
-
-    /// set listen port
+    /// Port to listen on, default is 3000
     #[clap(short = 'p', long = "port", default_value = "3000")]
     port: u16,
 }
 
+/// ## 5-card hands
 #[derive(Debug, Deserialize)]
 struct HandsFive {
+    /// list of 5-card hands
     hands: Vec<[usize; 5]>,
 }
 
+/// ## 7-card hands
 #[derive(Debug, Deserialize)]
 struct HandsSeven {
+    /// list of 7-card hands
     hands: Vec<[usize; 7]>,
 }
 
+/// ## Deterministic game description
+/// Contains all players and the table cards.
 #[derive(Debug, Deserialize)]
 struct GameDet {
+    /// list of players with their 2 cards
     players: Vec<[u32; 2]>,
+    /// table cards
     table: Vec<u32>,
 }
 
+/// ## Monte Carlo game description
+/// Contains all known (or assumed) players cards and the table cards.
 #[derive(Debug, Deserialize)]
 struct GameMc {
+    /// list of players with their known cards (0, 1, or 2)
     players: Vec<Vec<u32>>,
+    /// table cards
     table: Vec<u32>,
+    /// number of games to simulate
     nb_game: u32,
 }
 
+/// ## Main function
+/// Starts the poker server based on **poker_eval** crate.
 #[tokio::main]
 async fn main() {
     banner("poker server", 10);
 
     // read args
-    let opt = Opt::parse();
+    let server_config = ServerConfig::parse();
     let sock_addr = SocketAddr::from((
-        IpAddr::from_str(opt.addr.as_str()).unwrap_or(IpAddr::V6(Ipv6Addr::LOCALHOST)),
-        opt.port,
+        IpAddr::from_str(server_config.addr.as_str()).unwrap_or(IpAddr::V6(Ipv6Addr::LOCALHOST)),
+        server_config.port,
     ));
 
     // tracing global collector configured based on RUST_LOG env var.
@@ -116,6 +144,9 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+/// ## Init function
+/// Builds the app state at server start.  
+/// Contains all lookup tables used by poker_eval and hand statistics for `/stats-five` and  `/stats-seven` endpoints.
 fn build_app_state() -> AppState {
     let start = std::time::Instant::now();
 
@@ -135,12 +166,16 @@ fn build_app_state() -> AppState {
     }
 }
 
+/// ## Health check endpoint
+/// Returns "Ok" if the server is running.  
 #[tracing::instrument]
 async fn healthz() -> &'static str {
     tracing::info!("-> OK");
     "Ok"
 }
 
+/// ## Config endpoint
+/// Returns the poker eval Config object.  
 #[tracing::instrument(skip(state))]
 async fn config(State(state): State<AppState>) -> (StatusCode, Json<Config>) {
     let t7_ = state.t7.clone();
@@ -156,6 +191,8 @@ async fn config(State(state): State<AppState>) -> (StatusCode, Json<Config>) {
     (StatusCode::OK, Json(conf))
 }
 
+/// ## 5-card hand statistics endpoint
+/// Returns the 5-card hand statistics.
 #[tracing::instrument(skip(state))]
 async fn stats_five(
     State(state): State<AppState>,
@@ -166,6 +203,8 @@ async fn stats_five(
     (StatusCode::OK, Json(stats_five))
 }
 
+/// ## 7-card hand statistics endpoint
+/// Returns the 7-card hand statistics.
 #[tracing::instrument(skip(state))]
 async fn stats_seven(
     State(state): State<AppState>,
@@ -176,6 +215,8 @@ async fn stats_seven(
     (StatusCode::OK, Json(stats_seven))
 }
 
+/// ## 5-card hand rank endpoint
+/// Returns the rank of each 5-card hand passed as input.
 #[tracing::instrument(skip(state))]
 async fn rank_five(
     State(state): State<AppState>,
@@ -195,6 +236,8 @@ async fn rank_five(
     (StatusCode::OK, Json(ranks))
 }
 
+/// ## 7-card hand rank endpoint
+/// Returns the rank of each 7-card hand passed as input.
 #[tracing::instrument(skip(state))]
 async fn rank_seven(
     State(state): State<AppState>,
@@ -214,6 +257,9 @@ async fn rank_seven(
     (StatusCode::OK, Json(ranks))
 }
 
+/// ## Deterministic hand equity calculation
+/// Calculates the equity of each player hand with all players and table cards known.  
+/// Exhaustive calculation through all possible table unknown cards.  
 #[tracing::instrument(skip(state))]
 async fn calc_det(
     State(state): State<AppState>,
@@ -233,6 +279,9 @@ async fn calc_det(
     Ok(AppJson(equity))
 }
 
+/// ## Monte Carlo hand equity calculation  
+/// Calculates the equity of the first player hand with partial information about other players hands and table cards known.  
+/// Monte Carlo simulation through `nb_game` games.  
 #[tracing::instrument(skip(state))]
 async fn calc_mc(
     State(state): State<AppState>,
@@ -252,6 +301,8 @@ async fn calc_mc(
     Ok(AppJson(equity))
 }
 
+/// ## Util function
+/// Prints a banner.
 fn banner(txt: &str, n: u8) {
     let s = "-".repeat(n as usize);
     println!("\n{} {} {}", s, txt, s);
@@ -262,6 +313,7 @@ fn banner(txt: &str, n: u8) {
 // --------------------
 // error handling
 
+/// Wrapper around `axum::Json` that implements `IntoResponse` for `AppJson`.
 #[derive(FromRequest)]
 #[from_request(via(axum::Json), rejection(AppError))]
 struct AppJson<T>(T);
@@ -275,9 +327,13 @@ where
     }
 }
 
+/// Error type for the app.
 enum AppError {
+    /// Rejection from `axum::Json`.
     JsonRejection(JsonRejection),
+    /// Error from the poker_eval lib.
     GameError(GameError),
+    /// Error from the poker_eval lib.
     McGameError(McGameError),
 }
 

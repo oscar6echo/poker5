@@ -1,15 +1,23 @@
+//! Expected hand stats for 5 and 7 cards
+
 #[cfg(feature = "serde")]
 use serde::Serialize;
 
+/// Hand stats container for a hand type, eg. "high-card", "one-pair", etc.
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct HandStats {
+    /// Number of hands
     pub nb_hand: u32,
+    /// Minimum rank
     pub min_rank: u32,
+    /// Maximum rank
     pub max_rank: u32,
+    /// Number of occurrences
     pub nb_occur: u32,
 }
 
+/// Expected hand stats for 5 cards
 pub const STATS_FIVE: [(&str, HandStats); 9] = [
     (
         "high-card",
@@ -94,6 +102,7 @@ pub const STATS_FIVE: [(&str, HandStats); 9] = [
     ),
 ];
 
+/// Expected hand stats for 7 cards
 pub const STATS_SEVEN: [(&str, HandStats); 9] = [
     (
         "high-card",

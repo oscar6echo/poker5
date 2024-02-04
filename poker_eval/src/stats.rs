@@ -1,3 +1,5 @@
+//! Hand statistics - 5-card and 7-card hand types
+
 use std::sync::Arc;
 use std::thread;
 use std::{cmp, collections::HashMap, collections::HashSet, time::Instant};

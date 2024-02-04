@@ -1,3 +1,3 @@
 [workspace]
-members = ["poker", "poker_server", "poker_keygen"]
+members = ["poker_eval", "poker_server", "poker_keygen"]
 resolver = "2"

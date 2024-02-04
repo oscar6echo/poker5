@@ -1,6 +1,6 @@
-// use poker::eval;
-// use poker::stats;
-// use poker::calc;
+// use poker_eval::eval;
+// use poker_eval::stats;
+// use poker_eval::calc;
 
 fn main() {
     println!("TACTICAL");

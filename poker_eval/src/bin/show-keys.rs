@@ -1,4 +1,4 @@
-use poker::keys;
+use poker_eval::keys;
 
 fn main() {
     banner("poker keys", 10);

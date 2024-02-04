@@ -1,3 +1,7 @@
+//! ## Card keys
+//! All these integer keys are necessary for fast hand rank evaluation.  
+//! Most of these keys were found by crate **poker_keygen**.  
+
 use std::collections::HashMap;
 use std::fmt;
 
@@ -8,31 +12,49 @@ use serde_big_array::BigArray;
 
 use crate::util::*;
 
+/// Number of faces: 13
 pub const NB_FACE: usize = 13;
+/// Number of suits: 4
 pub const NB_SUIT: usize = 4;
+/// Number of cards in a deck: 13*4=52
 pub const DECK_SIZE: usize = NB_SUIT * NB_FACE;
-pub const SUIT_MASK: u32 = 511;
+/// Number of bits to shift to extract face key from card key
 pub const SUIT_BIT_SHIFT: u32 = 9;
+/// Bitmask to extract suit from card key
+pub const SUIT_MASK: u32 = 2_u32.pow(SUIT_BIT_SHIFT as u32) - 1;
 
+/// Suits (Clubs, Diamonds, Hearts, Spades) as char (C, D, H, S)
 pub const SUIT: [char; 4] = ['C', 'D', 'H', 'S'];
+/// Suit keys - from **poker_keygen**
 pub const SUIT_KEY: [u32; 4] = [0, 1, 29, 37];
 
+/// Faces (2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, K, A) as char
 pub const FACE: [char; 13] = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
 
+/// Flush keys for 5-card hands - from **poker_keygen**
 pub const FLUSH_FIVE_KEY: [u32; NB_FACE] = [0, 1, 2, 4, 8, 16, 32, 56, 104, 192, 352, 672, 1288];
+/// Flush keys for 7-card hands - from **poker_keygen**
 pub const FLUSH_SEVEN_KEY: [u32; NB_FACE] = [1, 2, 4, 8, 16, 32, 64, 128, 240, 464, 896, 1728, 3328];
 
+/// Face keys for 5-card hands - from **poker_keygen**
 pub const FACE_FIVE_KEY: [u32; NB_FACE] = [0, 1, 5, 22, 94, 312, 992, 2422, 5624, 12522, 19998, 43258, 79415];
+/// Face keys for 7-card hands - from **poker_keygen**
 pub const FACE_SEVEN_KEY: [u32; NB_FACE] = [0, 1, 5, 22, 98, 453, 2031, 8698, 22854, 83661, 262349, 636345, 1479181];
 
+/// Maximum suit key
 pub const MAX_SUIT_KEY: u32 = SUIT_KEY[3] * 7;
 
+/// Maximum flush key for 5-card hands
 pub const MAX_FLUSH_FIVE_KEY: u32 = sum_last(FLUSH_FIVE_KEY, 5);
+/// Maximum flush key for 7-card hands
 pub const MAX_FLUSH_SEVEN_KEY: u32 = sum_last(FLUSH_SEVEN_KEY, 7);
 
+/// Maximum face key for 5-card hands
 pub const MAX_FACE_FIVE_KEY: u32 = FACE_FIVE_KEY[NB_FACE - 1] * 4 + FACE_FIVE_KEY[NB_FACE - 2] * 1;
+/// Maximum face key for 7-card hands
 pub const MAX_FACE_SEVEN_KEY: u32 = FACE_SEVEN_KEY[NB_FACE - 1] * 4 + FACE_SEVEN_KEY[NB_FACE - 2] * 3;
 
+/// Missing value - convention
 pub const NO_VALUE: u32 = 999_999_999;
 
 #[derive(Debug, Clone)]
@@ -71,6 +93,7 @@ pub struct Keys {
     pub card_no: HashMap<String, usize>,
 }
 
+/// Wrap all keys in a struct
 pub fn build() -> Keys {
     assert!(
         MAX_SUIT_KEY < (1 << SUIT_BIT_SHIFT),
@@ -126,10 +149,10 @@ pub fn build() -> Keys {
         max_face_seven_key: MAX_FACE_SEVEN_KEY,
 
         // constructed
-        card_face: card_face,
-        card_suit: card_suit,
-        card_flush_key: card_flush_key,
-        card_face_key: card_face_key,
+        card_face,
+        card_suit,
+        card_flush_key,
+        card_face_key,
         card_sy,
         card_no,
     }

@@ -1,3 +1,28 @@
+//! # Monte Carlo equity calculation
+//! This module provides the function to calculate the equity of a hand in a monte carlo mode.
+
+//!   # Example
+//!
+//! ```no_run
+//! // you need create Arc<TableSeven> arc_t7 beforehand once
+//! let t7 = poker_eval::eval::seven::build_tables(true);
+//! let arc_t7 = std::sync::Arc::new(t7);
+//!
+//! // then you can call calc_equity_mc multiple times
+//! let equity = calc::equity_mc::calc_equity_monte_carlo(
+//!     // clone of Arc<TableSeven>
+//!     arc_t7.clone(),
+//!     // player cards
+//!     vec![vec![8, 9], vec![11, 28], vec![]],
+//!     // table cards
+//!     vec![15, 47, 23, 33],
+//!     // number of game
+//!     100_000_000,
+//! );
+//! println!("equity = {:?}", equity);
+//! // Ok(HandEquity { win: 0.3167, tie: 0.0 })
+//! ```
+
 use rand::seq::SliceRandom;
 use std::{collections::HashSet, sync::Arc, thread, time::Instant};
 use thiserror::Error;
@@ -8,25 +33,35 @@ use crate::{
     keys::DECK_SIZE,
 };
 
+/// ## Game description error
+/// This error type is used to describe the errors that can occur when describing a monte carlo game.  
 #[derive(Error, Debug)]
 pub enum McGameError {
     // player
+    /// invalid number of players
     #[error("invalid nb players: {0} - must be between 1 and 10")]
     InvalidNbPlayer(u32),
+    /// invalid first player
     #[error("invalid first player: {0:?} - 2 cards between 0 and 51 must be provided")]
     InvalidFirstPlayer(Vec<u32>),
+    /// invalid other player
     #[error("invalid other player: {0:?} - 0, 1 or 2 cards between 0 and 51 must be provided")]
     InvalidOtherPlayer(u32, Vec<u32>),
     // table
+    /// invalid number of table cards
     #[error("invalid nb table cards: {0} - must be between 0 and 5")]
     InvalidNbTableCard(u32),
+    /// invalid table card
     #[error("invalid table card {0}: {1} - must be between 0 and 51")]
     InvalidTableCard(u32, u32),
     //both
+    /// not distinct cards
     #[error("players: {0:?} table: {1:?} - all cards must be distinct")]
     NotDistinctCards(Vec<Vec<u32>>, Vec<u32>),
 }
 
+/// ## Calculate equity of hand in monte carlo mode
+/// This does not require knowing all players cards.  
 pub fn calc_equity_monte_carlo(
     t7: Arc<TableSeven>,
     player_cards: Vec<Vec<u32>>,

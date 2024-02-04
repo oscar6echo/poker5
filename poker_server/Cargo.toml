@@ -6,7 +6,7 @@ edition = "2021"
 # See https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-poker = { path = "../poker", features = ["serde"] }
+poker_eval = { path = "../poker_eval", features = ["serde"] }
 axum = { version = "0.7.4", features = ["macros"] }
 tokio = { version = "1.35.1", features = ["full"] }
 serde = { version = "1.0.195", features = ["derive"] }

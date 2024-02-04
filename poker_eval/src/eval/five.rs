@@ -1,3 +1,8 @@
+//! ## 5-card hand evaluation
+//! Contains the following functions:
+//! - [build_tables]: build the lookup tables for 5-card hand evaluation
+//! - [get_rank_five]: get the rank of a 5-card hand
+
 use super::target::HandStats;
 use crate::keys;
 use std::{collections::HashMap, iter::zip, time::Instant};
@@ -5,18 +10,49 @@ use std::{collections::HashMap, iter::zip, time::Instant};
 #[cfg(feature = "serde")]
 use serde::Serialize;
 
+/// ## Lookup tables for 5-card hand evaluation
+/// + build in function [build_tables]
+/// + used in function [get_rank_five]
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct TableFive {
+    // keys
     pub pk: keys::Keys,
+    // flush_five_rank[hand_flush_key] = rank
     pub flush_five_rank: Vec<u32>,
+    // face_five_rank[hand_face_key] = rank
     pub face_five_rank: Vec<u32>,
+    // hand_faces[i] = [f1, f2, f3, f4, f5]
     pub hand_faces: Vec<[usize; 5]>,
+    // hand_type[i] = "high-card", "one-pair", etc.
     pub hand_type: Vec<String>,
+    // number of hand ranks
     pub nb_hand_five_rank: u32,
+    // hand stats
     pub hands: HashMap<String, HandStats>,
 }
 
+/// ## Build lookup tables for 5-card hand evaluation
+/// The tables are build by going through all possible 5-card hands and assigning a rank to each hand.  
+/// Hand types are: high-card
+/// + one-pair
+/// + two-pairs
+/// + three-of-a-kind
+/// + straight
+/// + flush
+/// + full-house
+/// + four-of-a-kind
+/// + straight-flush  
+///
+/// The hand types are gone through in their value order.  
+/// In each hand type, the card combinations are gone through in their value order.  
+///
+/// For each hand:
+/// + its lookup key is the sum of all its card keys (either `flush` or `face`).  
+/// + its rank is the previous rank + 1.
+///
+/// Thus all possible 5-card hands are assigned a rank.
+///
 pub fn build_tables(verbose: bool) -> TableFive {
     let start = Instant::now();
 
@@ -292,6 +328,22 @@ pub fn build_tables(verbose: bool) -> TableFive {
     t5
 }
 
+/// Get the rank of a 5-card hand
+/// ## Arguments
+/// * `t5`: [TableFive] - must be precalculated
+/// * `c`: 5 cards all distinct integers from 0 to nb_face*nb_suit
+///
+/// ## Example
+/// ```no_run
+/// use poker_eval::eval::five::{build_tables, get_rank_five};
+///
+/// // precalculate the lookup tables
+/// let t5 = build_tables(true);
+///
+/// // run the evaluation multiple times
+/// let rank = get_rank_five(&t5, [0, 1, 2, 44, 33]);
+/// // rank = TBD
+/// ```
 pub fn get_rank_five(t5: &TableFive, c: [usize; 5]) -> u32 {
     // input = 5 cards all distinct integers from 0 to nb_face*nb_suit
     // in order defined by card_no

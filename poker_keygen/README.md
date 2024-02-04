@@ -44,7 +44,7 @@ From there if all possible cases are pre calculated, a hand rank can be looked u
 + If so: Sum each card (with suit="flush suit") `flush_seven` and lookup hand rank.  
 + If not: Sum each card `face_seven` (extracted by bit shift) and lookup hand rank.  
 
-This provides a very fast way to evaluate hand ranks.
+This provides a very fast way to evaluate a hand rank.
 
 ## Compute
 

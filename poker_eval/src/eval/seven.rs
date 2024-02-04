@@ -1,3 +1,9 @@
+//! ## 7-card hand evaluation
+//! Contains the following functions:
+//! - [build_tables]: build the lookup tables for seven cards hand evaluation
+//! - [get_rank_seven]: slow evaluate the rank of a 7-card hand - used in [build_tables]
+//! - [get_rank]: fast evaluate the rank of a 7-card hand -- used in [calc](crate::calc)
+
 use std::iter::zip;
 use std::sync::Arc;
 use std::time::Instant;
@@ -7,15 +13,31 @@ use serde::Serialize;
 
 use crate::eval::five;
 
+/// ## Lookup tables for 7-card hand evaluation
+/// + build in function [build_tables]
+/// + used in function [get_rank]
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct TableSeven {
-    pub face_rank: Vec<u32>,
-    pub flush_rank: Vec<u32>,
-    pub flush_suit: Vec<i32>,
+    /// Lookup table for 5-card hand evaluation
     pub t5: five::TableFive,
+    /// face_rank[sum of face keys] = rank
+    pub face_rank: Vec<u32>,
+    /// flush_rank[sum of flush keys] = rank
+    pub flush_rank: Vec<u32>,
+    /// flush_suit[sum of suit keys] = suit
+    pub flush_suit: Vec<i32>,
 }
 
+/// ## Build lookup tables for 7-card hand evaluation
+/// The tables are built by going through all possible 7-card hands and evaluating their rank.  
+///
+/// For non flush hands, the rank is evaluated by evaluating all possible 5-card hands and keeping the best.  
+/// For flush hands (i.e. 5 or 6 or 7 cards have the same suit), the rank is evaluated by evaluating all possible 5-card hands with the same suit and keeping the best.  
+/// The evaluation of 5-hand cards is done by function [get_rank_seven].  
+///
+/// Thus all possible 7-hand cards are assigned a rank.  
+/// This rank is very fast to lookup - performed by function [get_rank].  
 pub fn build_tables(verbose: bool) -> Arc<TableSeven> {
     let start = Instant::now();
 
@@ -199,6 +221,11 @@ pub fn build_tables(verbose: bool) -> Arc<TableSeven> {
     Arc::new(t7)
 }
 
+/// ## Slow evaluate 7-card hand rank
+///
+/// Used in [build_tables] only once.  
+/// All 5-card (among 7) are evaluated and the best rank is returned.  
+///
 pub fn get_rank_seven(t5: &five::TableFive, c: [usize; 7]) -> u32 {
     // input = array of 5 cards all distinct integers from 0 to nb_face*nb_suit
     // in order defined by card_no
@@ -226,6 +253,28 @@ pub fn get_rank_seven(t5: &five::TableFive, c: [usize; 7]) -> u32 {
     best_hand_rank
 }
 
+/// ## Fast evaluate 7-card hand rank
+/// Lookup 7-hand card hand rank as follows:
+/// + build `hand_key` by adding all 7 card keys
+/// + extract `hand_suit_key` from `hand_key` by bit mask
+/// + if `hand_suit_key` is -1, then the hand is not a flush, then:
+///    + extract `hand_face_key` from `hand_key` by bit shift
+///   + lookup `hand_face_key` in `face_rank` to get `hand_rank`
+/// + else the hand is a flush with suit key = `hand_suit_key` , then:
+///   + build `hand_flush_key` by adding those hand cards with suit = `hand_suit_key`
+///  + lookup `hand_flush_key` in `flush_rank` to get `hand_rank`
+/// + return `hand_rank`
+///
+/// In the non-flush (frequent) case, the evaluation usually entains:
+/// + a sum  
+/// + a bit mask  
+/// + a lookup.  
+/// + a bit shift  
+/// + a lookup.  
+///
+/// In the flush case, the evaluation substitutes the bit shift by a sum.
+///
+/// Consequently it is *very* fast.
 pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
     // input = array of 7 cards all distinct integers from 0 to nb_face*nb_suit
     // in order defined by card_no
