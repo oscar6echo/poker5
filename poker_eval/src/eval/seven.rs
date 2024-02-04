@@ -277,7 +277,7 @@ pub fn get_rank_seven(t5: &five::TableFive, c: [usize; 7]) -> u32 {
 /// Consequently it is *very* fast.
 ///
 /// ## Example
-/// ```no_run
+/// ```rust
 /// use poker_eval::eval::seven::{build_tables, get_rank};
 ///
 /// // precalculate the lookup tables
@@ -285,8 +285,8 @@ pub fn get_rank_seven(t5: &five::TableFive, c: [usize; 7]) -> u32 {
 ///
 /// // run the evaluation multiple times
 /// let rank = get_rank(&t7, [5, 4, 18, 31, 34, 48, 22]);
-/// // rank = 1689
-
+/// assert_eq!(rank, 1689);
+/// ```
 pub fn get_rank(t7: &TableSeven, c: [usize; 7]) -> u32 {
     let card_face_key = &t7.t5.pk.card_face_key;
     let card_flush_key = &t7.t5.pk.card_flush_key;

@@ -334,7 +334,7 @@ pub fn build_tables(verbose: bool) -> TableFive {
 /// * `c`: 5 cards all distinct integers from 0 to nb_face*nb_suit
 ///
 /// ## Example
-/// ```no_run
+/// ```
 /// use poker_eval::eval::five::{build_tables, get_rank_five};
 ///
 /// // precalculate the lookup tables
@@ -342,7 +342,7 @@ pub fn build_tables(verbose: bool) -> TableFive {
 ///
 /// // run the evaluation multiple times
 /// let rank = get_rank_five(&t5, [31, 26, 50, 16, 49]);
-/// // rank = 3971
+/// assert_eq!(rank, 3971);
 /// ```
 pub fn get_rank_five(t5: &TableFive, c: [usize; 5]) -> u32 {
     let card_suit = &t5.pk.card_suit;

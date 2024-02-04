@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 use axum::{
     extract::{rejection::JsonRejection, FromRequest, State},
     http::StatusCode,
@@ -108,6 +110,16 @@ struct GameMc {
 /// Starts the poker server based on [poker_eval] crate.  
 /// First build app state with lookup tables and hand statistics.  
 /// Then start the server with the app state.  
+///
+/// ```sh
+/// cargo build --release
+/// ./target/release/poker_server --addr 127.0.0.1 --port 3000
+/// ```
+/// Or:
+/// ```rust
+/// use poker_server::main;
+/// main();
+/// ```
 #[tokio::main]
 async fn main() {
     banner("poker server", 10);

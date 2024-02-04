@@ -3,13 +3,15 @@
 
 //!   # Example
 //!
-//! ```no_run
+//! ```
+//! use poker_eval::eval::seven::build_tables;
+//! use poker_eval::calc::equity_det::calc_equity_det;
+//!
 //! // you need create Arc<TableSeven> arc_t7 beforehand once
-//! let t7 = poker_eval::eval::seven::build_tables(true);
-//! let arc_t7 = std::sync::Arc::new(t7);
+//! let arc_t7 = build_tables(true);
 //!
 //! // then you can call calc_equity_det multiple times
-//! let equity = calc::equity_det::calc_equity_det(
+//! let equity = calc_equity_det(
 //!     // clone of Arc<TableSeven>
 //!     arc_t7.clone(),  
 //!     // players cards  

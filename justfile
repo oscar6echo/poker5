@@ -4,6 +4,7 @@ run-keygen:
 
 test-eval:
     cargo test -p poker_eval --lib --release
+    cargo test -p poker_eval --doc --release
 
 test-eval-vv:
     cargo test -p poker_eval --lib --release -- --nocapture

@@ -3,13 +3,15 @@
 
 //!   # Example
 //!
-//! ```no_run
+//! ```
+//! use poker_eval::eval::seven::build_tables;
+//! use poker_eval::calc::equity_mc::calc_equity_monte_carlo;
+//!
 //! // you need create Arc<TableSeven> arc_t7 beforehand once
-//! let t7 = poker_eval::eval::seven::build_tables(true);
-//! let arc_t7 = std::sync::Arc::new(t7);
+//! let arc_t7 = build_tables(true);
 //!
 //! // then you can call calc_equity_mc multiple times
-//! let equity = calc::equity_mc::calc_equity_monte_carlo(
+//! let equity = calc_equity_monte_carlo(
 //!     // clone of Arc<TableSeven>
 //!     arc_t7.clone(),
 //!     // player cards
@@ -17,7 +19,7 @@
 //!     // table cards
 //!     vec![15, 47, 23, 33],
 //!     // number of game
-//!     100_000_000,
+//!     10_000_000,
 //! );
 //! println!("equity = {:?}", equity);
 //! // Ok(HandEquity { win: 0.3167, tie: 0.0 })
