@@ -59,5 +59,5 @@ curl -X POST -H "Content-Type: application/json" -d '{"players":[[8,29], [4,11]]
 time curl -X POST -H "Content-Type: application/json" -d '{"players":[[8,9],[11],[]],"table":[15,47,23,33],"nb_game":100000000}' http://localhost:3000/calc-mc
 # {"win":0.1676650867066035,"tie":0.003498295139931806}
 # 0.00s user 0.01s system 0% cpu 0.939 total
-# 100m hands in 1s - quite fast!
+# 300m hands ranks in <1s - quite fast!
 ```
