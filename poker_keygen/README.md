@@ -5,6 +5,8 @@
 The purpose of this repo is to brute force search for keys which enable to uniquely identify a poker hand with a few sums, bitshift and bitmask.  
 AFAIK this algo was introduced by [SpecialK](https://github.com/kennethshackleton/SKPokerEval).  
 
+These keys are used by crate [poker_eval](https://github.com/oscar6echo/poker5/tree/main/poker_eval)
+
 The sets of keys are:
 
 + **suit** keys:  
@@ -27,7 +29,7 @@ The sets of keys are:
     They are such that the sums of any 2 combinations of 5 or 6 or 7 distinct faces are distinct.  
     They allow to uuid a 7-card flush hand.  
 
-+ **face seven** keys:  
++ **face seven** keys:  0
     13 keys for faces 1, 2, 3,.., 9, T, J, Q, K, A.  
     They are such that the sums of any 2 combinations of 7 faces (with max same 4) are distinct.  
     They allow to uuid a 7-card non-flush hand.  
@@ -38,7 +40,7 @@ It turns out that:
 + max(face keys) < 2^23
 
 So a card (among #suit x #face = 4 x 13 = 52) can be encoded in 32 bits - this plays well with computers !  
-From there if all possible cases are pre calculated, a hand rank can be looked up as follows:  
+From there if all possible cases are pre calculated, a hand rank can be looked up as follows:  0
 
 + Sum each card `suit_key` (extracted by bit shift) and lookup if hand is flush.  
 + If so: Sum each card (with suit="flush suit") `flush_seven` and lookup hand rank.  
@@ -54,6 +56,7 @@ The runtime is crazy fast.
 
 ## Run
 
+0
 Commands:
 
 ```sh
