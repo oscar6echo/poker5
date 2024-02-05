@@ -7,6 +7,8 @@ The 9 least significant bits encode the card suit, the others 23 the card face.
 
 This encoding, based on keys precalculated by crate [poker_keygen](https://github.com/oscar6echo/poker5/tree/main/poker_keygen), in is such that it enables to uniquely identify a hand rank by a few simple operations (sums, bit mask, bit shift, and table lookups).  
 
+To use this crate as a server see [poker_server](https://github.com/oscar6echo/poker5/tree/main/poker_server).
+
 ## Eval
 
 Building the lookup is performed in sequence:
