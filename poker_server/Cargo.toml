@@ -2,6 +2,13 @@
 name = "poker_server"
 version = "0.1.0"
 edition = "2021"
+authors = ["oscar6echo"]
+license = "MIT"
+description = "Texas Hold'em poker hand equity web server"
+repository = "https//github/oscar6echo/poker5"
+readme = "README.md"
+keywords = ["poker", "texas hold'em", "hand evaluator", "web server"]
+categories = ["web-programming::http-server"]
 
 # See https://doc.rust-lang.org/cargo/reference/manifest.html
 
