@@ -3,10 +3,16 @@
 
 This is a Texas Hold'em Poker hand evaluator with associated server:
 
-+ [Key Generator](./poker_keygen/)
-+ [Hand Evaluator](./poker_eval/)
-+ [Server](./poker_server/)
++ [Key Generator](./poker_keygen/)  
+    ![Crates.io Version](https://img.shields.io/crates/v/poker_keygen?link=https%3A%2F%2Fcrates.io%2Fcrates%2Fpoker_keygen)
+
++ [Hand Evaluator](./poker_eval/)  
+    ![Crates.io Version](https://img.shields.io/crates/v/poker_eval?link=https%3A%2F%2Fcrates.io%2Fcrates%2Fpoker_eval)  
+    ![docs.rs](https://img.shields.io/docsrs/poker_eval?label=docs.rs&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fpoker_eval)
   
++ [Server](./poker_server/)  
+    ![Crates.io Version](https://img.shields.io/crates/v/poker_server?link=https%3A%2F%2Fcrates.io%2Fcrates%2Fpoker_server)
+
 It is **very fast**, e.g. on my machine, all 133 million possible 7-card hands ($C^{7}_{52}$) are evaluated in 1.2s.
 
 # Commands
