@@ -9,7 +9,7 @@ description = "Texas Hold'em poker hand equity evaluator"
 # homepage = ""
 repository = "https://github/oscar6echo/poker5"
 readme = "README.md"
-keywords = ["poker", "hand evaluator", "equity", "monte carlo"]
+keywords = ["poker", "hand-eval", "equity", "monte-carlo"]
 categories = ["games"]
 
 # See https://doc.rust-lang.org/cargo/reference/manifest.html

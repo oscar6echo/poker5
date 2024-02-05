@@ -9,7 +9,7 @@ description = "Texas Hold'em poker key generator"
 # homepage = ""
 repository = "https://github/oscar6echo/poker5"
 readme = "README.md"
-keywords = ["poker", "hand evaluator", "key generator"]
+keywords = ["poker", "key-gen"]
 categories = ["games"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
