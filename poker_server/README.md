@@ -1,6 +1,6 @@
 # Poker server
 
-Designed to expose crate **poker_eval** as an API.  
+Designed to expose crate [poker_eval](https://github.com/oscar6echo/poker5/tree/main/poker_eval) as an API.  
 
 ## Run
 
