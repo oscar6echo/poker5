@@ -13,7 +13,7 @@ categories = ["web-programming::http-server"]
 # See https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-poker_eval = { path = "../poker_eval", features = ["serde"] }
+poker_eval = { path = "../poker_eval", version = "0.1.0", features = ["serde"] }
 axum = { version = "0.7.4", features = ["macros"] }
 tokio = { version = "1.35.1", features = ["full"] }
 serde = { version = "1.0.195", features = ["derive"] }
