@@ -1,3 +1,6 @@
 [workspace]
 members = ["poker_eval", "poker_server", "poker_keygen"]
 resolver = "2"
+
+[workspace.metadata.publish]
+order = ["poker_keygen", "poker_eval", "poker_server"]
