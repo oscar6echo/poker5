@@ -71,3 +71,9 @@ doc-live-poker_server $PKG="poker_server":
 
 serve-doc:
     browser-sync start --port 3009 --directory --server target/doc --ss target/doc --watch target/doc --no-open
+
+publish-poker_eval:
+    cargo publish -p poker_eval --dry-run
+
+publish-poker_server:
+    cargo publish -p poker_server --dry-run --allow-dirty
